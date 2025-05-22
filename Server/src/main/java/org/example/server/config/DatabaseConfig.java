@@ -9,12 +9,13 @@ import javax.sql.DataSource;
 @Configuration
 public class DatabaseConfig {
 
+    // kết nối với cơ sở dữ liệu PostGreSQL
     @Bean
     public DataSource dataSource() {
         return DataSourceBuilder.create()
                 .url("jdbc:postgresql://localhost:5432/familymeet")
                 .username("postgres")
-                .password("leto2004")
+                .password("leto200124")
                 .build();
     }
 }

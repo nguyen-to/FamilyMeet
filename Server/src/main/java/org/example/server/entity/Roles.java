@@ -1,8 +1,10 @@
 package org.example.server.entity;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import org.example.server.utill.RolesEnum;
 
+@Builder
 @Entity
 @Table(name = "roles")
 public class Roles {
@@ -11,8 +13,7 @@ public class Roles {
     @Column(name = "role_id")
     private Long id;
 
-    @Column(name = "name_role")
-    @Enumerated(EnumType.STRING)
+    @Column(name = "name_role",unique = true)
     private RolesEnum role;
 
     public Roles() {

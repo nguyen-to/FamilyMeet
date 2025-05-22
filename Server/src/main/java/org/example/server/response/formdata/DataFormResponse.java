@@ -1,5 +1,8 @@
 package org.example.server.response.formdata;
 
+import lombok.Builder;
+
+@Builder
 public class DataFormResponse<T> {
     private String message;
     private T data;
