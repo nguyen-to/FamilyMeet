@@ -3,7 +3,7 @@ package org.example.server.request;
 public class LoginRequest {
     private String email;
     private String password;
-
+    private String deviceId;
 
     public String getEmail() {
         return email;
@@ -15,6 +15,14 @@ public class LoginRequest {
 
     public String getPassword() {
         return password;
+    }
+
+    public String getDeviceId() {
+        return deviceId;
+    }
+
+    public void setDeviceId(String deviceId) {
+        this.deviceId = deviceId;
     }
 
     public void setPassword(String password) {

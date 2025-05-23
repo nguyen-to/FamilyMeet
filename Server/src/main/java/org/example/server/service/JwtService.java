@@ -4,6 +4,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -18,7 +19,9 @@ import java.util.Map;
 public class JwtService {
     private final String jwrSecret = "nlhasdhsahdsadjsadhasdhasdhasjasjdasdsadsđasad";
     private final long jwtExpiration = 360000;
-    private final long refresh_tokenExpiration = 864000;
+
+    @Value("${setTime.refreshToken}")
+    private long refresh_tokenExpiration;
 
     // Generate Access Token
     public String generateAccessToken(Authentication authentication) {
@@ -60,6 +63,8 @@ public class JwtService {
                 .signWith(getSecretKey())
                 .compact();
     }
+
+    // extract email to token
     public String extractEmailToToken(String token) {
         Claims claims = extractAllClaims(token);
         if(claims != null) {

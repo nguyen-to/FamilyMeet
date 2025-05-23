@@ -11,6 +11,8 @@ import org.example.server.response.formdata.DataFormResponse;
 import org.example.server.service.JwtService;
 import org.example.server.service.RolesService;
 import org.example.server.service.UserService;
+import org.example.server.service.userservice.CustomUserDetails;
+import org.example.server.serviceImpl.RefreshTokenService;
 import org.example.server.utill.RolesEnum;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -21,6 +23,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.security.Principal;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -33,8 +36,9 @@ public class AuthControllerService {
     private final PasswordEncoder passwordEncoder;
     private final RolesService rolesService;
     private final UserDetailsService userDetailsService;
+    private final RefreshTokenService refreshTokenService;
 
-    public DataFormResponse<LoginResponse> ActiveLogin(LoginRequest loginRequest) {
+    public LoginResponse ActiveLogin(LoginRequest loginRequest) {
         // xác thực user
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -42,16 +46,15 @@ public class AuthControllerService {
                         loginRequest.getPassword()
                 )
         );
+        String email = ((CustomUserDetails) authentication.getPrincipal()).getUsername();
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String token = jwtService.generateAccessToken(authentication);
         String refreshToken = jwtService.generateRefreshToken(authentication);
-        LoginResponse loginResponse = LoginResponse.builder()
+        // save refresh token for redis
+        refreshTokenService.saveRefreshTokenRedis(refreshToken,email,loginRequest.getDeviceId());
+        return LoginResponse.builder()
                 .accessToken(token)
                 .refreshToken(refreshToken)
-                .build();
-        return DataFormResponse.<LoginResponse>builder()
-                .data(loginResponse)
-                .message("Login Successful")
                 .build();
     }
 
@@ -61,7 +64,7 @@ public class AuthControllerService {
                     .message("Email already exists")
                     .build();
         }
-        // tìm và lấy roles trong RolesEntity
+        // find ang get roles for RolesEntity
         Roles roles = rolesService.getRoles(RolesEnum.USER);
         Set<Roles> rolesSet = new HashSet<>();
         rolesSet.add(roles);
@@ -79,26 +82,41 @@ public class AuthControllerService {
                 .build();
     }
 
-    public DataFormResponse<RefreshTokenResponse> ActiveRefreshToken(String token) {
-        if(!jwtService.validateRefreshToken(token)) {
+    public DataFormResponse<RefreshTokenResponse> ActiveRefreshToken(String refreshToken,String deviceId) {
+
+        // check refresh Token for redis
+        String emailRedis = jwtService.extractEmailToToken(refreshToken);
+        if(!refreshTokenService.checkRefreshToken(refreshToken,emailRedis,deviceId)) {
             throw new IllegalStateException("Invalid refresh token");
         }
-        String email = jwtService.extractEmailToToken(token);
+
+        if(!jwtService.validateRefreshToken(refreshToken)) {
+            throw new IllegalStateException("Invalid refresh token");
+        }
+        String email = jwtService.extractEmailToToken(refreshToken);
         UserDetails userDetails = userDetailsService.loadUserByUsername(email);
 
         if(userDetails == null) {
             throw new IllegalStateException("User not found");
         }
 
-        UsernamePasswordAuthenticationToken auth= new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        UsernamePasswordAuthenticationToken auth= new UsernamePasswordAuthenticationToken(userDetails,
+                null, userDetails.getAuthorities());
         String accessToken = jwtService.generateAccessToken(auth);
         return DataFormResponse.<RefreshTokenResponse>builder()
                 .message("Refresh token successful")
                 .data(RefreshTokenResponse.builder()
                         .accessToken(accessToken)
-                        .refreshToken(token)
                         .build())
                 .build();
     }
 
+    public DataFormResponse<String> ActiveLogout(String deviceId, Principal principal) {
+        //  remote refresh token for redis
+        String email = principal.getName();
+        refreshTokenService.removeRefreshToken(email,deviceId);
+        return DataFormResponse.<String>builder()
+                .message("Logout Successful")
+                .build();
+    }
 }

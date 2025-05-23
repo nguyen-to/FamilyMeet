@@ -5,4 +5,8 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+server:
+  port: 8000
 
+setTime:
+  refreshToken : 604800
