@@ -5,6 +5,7 @@ import org.example.server.repository.RolesRepository;
 import org.example.server.service.RolesService;
 import org.example.server.utill.RolesEnum;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class RolesServiceImpl implements RolesService {
@@ -14,6 +15,7 @@ public class RolesServiceImpl implements RolesService {
         this.rolesRepository = rolesRepository;
     }
 
+    @Transactional
     @Override
     public Roles getRoles(RolesEnum role) {
         return rolesRepository.findByRole(role).orElseGet(() -> {

@@ -1,12 +1,16 @@
 package org.example.server.controllerservice;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseToken;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.server.entity.Roles;
 import org.example.server.entity.UserEntity;
-import org.example.server.request.LoginRequest;
-import org.example.server.request.RegisterRequest;
-import org.example.server.response.LoginResponse;
-import org.example.server.response.RefreshTokenResponse;
+import org.example.server.request.authrequest.ChangeRequest;
+import org.example.server.request.authrequest.LoginRequest;
+import org.example.server.request.authrequest.RegisterRequest;
+import org.example.server.response.authresponse.LoginResponse;
+import org.example.server.response.authresponse.RefreshTokenResponse;
 import org.example.server.response.formdata.DataFormResponse;
 import org.example.server.service.JwtService;
 import org.example.server.service.RolesService;
@@ -27,6 +31,7 @@ import java.security.Principal;
 import java.util.HashSet;
 import java.util.Set;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class AuthControllerService {
@@ -48,16 +53,61 @@ public class AuthControllerService {
         );
         String email = ((CustomUserDetails) authentication.getPrincipal()).getUsername();
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        String token = jwtService.generateAccessToken(authentication);
-        String refreshToken = jwtService.generateRefreshToken(authentication);
+        String token = jwtService.generateAccessToken(authentication, loginRequest.getDeviceId());
+        String refreshToken = jwtService.generateRefreshToken(authentication,loginRequest.getDeviceId());
         // save refresh token for redis
-        refreshTokenService.saveRefreshTokenRedis(refreshToken,email,loginRequest.getDeviceId());
+        refreshTokenService.saveRefreshAccessTokenRedis(token,refreshToken,email,loginRequest.getDeviceId());
         return LoginResponse.builder()
                 .accessToken(token)
                 .refreshToken(refreshToken)
                 .build();
     }
+    public LoginResponse ActiveLoginFirebase(LoginRequest loginRequest) {
+        String email = null;
+        String uId = null;
+        try{
+            FirebaseToken firebaseToken = FirebaseAuth.getInstance().verifyIdToken(loginRequest.getPassword()); // authentication IdToken with Firebase Admin
+            email = firebaseToken.getEmail();  // get email to idToken
+            uId = firebaseToken.getUid();       // get uId to idToken
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        UserEntity userEntity = userService.findByEmail(email);
+        CustomUserDetails customUserDetails = null;
+        // user is null save database
+        if(userEntity == null) {
+            Roles roles = rolesService.getRoles(RolesEnum.USER);
+            Set<Roles> rolesSet = new HashSet<>();
+            rolesSet.add(roles);
+            UserEntity userEntity1 = UserEntity.builder()
+                    .email(email)
+                    .password(passwordEncoder.encode(uId))
+                    .roles(rolesSet)
+                    .build();
+            userService.saveUserEntity(userEntity1);
+            customUserDetails = new CustomUserDetails(userEntity1);
 
+        }else{
+            customUserDetails = new CustomUserDetails(userEntity);
+        }
+
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+                customUserDetails,
+                null,
+                customUserDetails.getAuthorities()
+        );
+
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+        String accessToken = jwtService.generateAccessToken(auth,loginRequest.getDeviceId());
+        String refreshToken = jwtService.generateRefreshToken(auth,loginRequest.getDeviceId());
+        // save refresh token for redis
+        refreshTokenService.saveRefreshAccessTokenRedis(accessToken,refreshToken,email,loginRequest.getDeviceId());
+        return LoginResponse.builder()
+                .refreshToken(refreshToken)
+                .accessToken(accessToken)
+                .build();
+    }
     public DataFormResponse<String> ActiveRegister(RegisterRequest registerRequest) {
         if(userService.existsByEmail(registerRequest.getEmail())) {
             return DataFormResponse.<String>builder()
@@ -102,7 +152,8 @@ public class AuthControllerService {
 
         UsernamePasswordAuthenticationToken auth= new UsernamePasswordAuthenticationToken(userDetails,
                 null, userDetails.getAuthorities());
-        String accessToken = jwtService.generateAccessToken(auth);
+        String accessToken = jwtService.generateAccessToken(auth,deviceId);
+        refreshTokenService.saveRefreshAccessTokenRedis(accessToken,refreshToken,email,deviceId);
         return DataFormResponse.<RefreshTokenResponse>builder()
                 .message("Refresh token successful")
                 .data(RefreshTokenResponse.builder()
@@ -119,4 +170,23 @@ public class AuthControllerService {
                 .message("Logout Successful")
                 .build();
     }
+
+    public DataFormResponse<String> ActiveChangePassword(ChangeRequest changeRequest) {
+        UserEntity userEntity = userService.findByEmail(changeRequest.getEmail());
+        if(userEntity == null) {
+            return DataFormResponse.<String>builder()
+                    .message("User not found")
+                    .build();
+        }
+        try {
+            userService.changePassword(changeRequest.getEmail(), changeRequest.getNewPassword());
+        }catch (Exception e) {
+            throw new IllegalStateException("Invalid email");
+        }
+        return DataFormResponse.<String>builder()
+                .message("Change Password Successful")
+                .build();
+    }
+
+
 }

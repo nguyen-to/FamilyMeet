@@ -8,5 +8,5 @@ public interface UserService {
     public UserEntity updateUserEntity(UserEntity userEntity);
     public void deleteUserEntity(String email);
     public boolean existsByEmail(String email);
-
+    public void changePassword(String email, String newPassword);
 }

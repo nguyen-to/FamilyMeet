@@ -17,9 +17,10 @@ public class UserEntityImpl implements UserService {
         this.userRepository = userRepository;
     }
 
+    @Transactional
     @Override
     public UserEntity findByEmail(String email) {
-        return userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        return userRepository.findByEmail(email).orElse(null);
     }
 
     @Transactional
@@ -37,6 +38,12 @@ public class UserEntityImpl implements UserService {
     @Override
     public boolean existsByEmail(String email) {
         return userRepository.existsByEmail(email);
+    }
+
+    @Transactional
+    @Override
+    public void changePassword(String email, String newPassword) {
+        userRepository.updatePassword(email, newPassword);
     }
 
     @Transactional

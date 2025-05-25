@@ -1,4 +1,4 @@
-package org.example.server.request;
+package org.example.server.request.authrequest;
 
 public class RegisterRequest {
     private String email;

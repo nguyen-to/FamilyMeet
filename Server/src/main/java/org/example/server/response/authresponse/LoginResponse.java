@@ -1,4 +1,4 @@
-package org.example.server.response;
+package org.example.server.response.authresponse;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;

@@ -1,5 +1,6 @@
 package org.example.server.service.userservice;
 
+import jakarta.transaction.Transactional;
 import org.example.server.entity.UserEntity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -16,6 +17,7 @@ public class CustomUserDetails implements UserDetails {
         this.user = userEntity;
     }
 
+    @Transactional
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return user.getRoles().stream().filter(Objects::nonNull).map(roles -> new SimpleGrantedAuthority(roles.getRole().name())).collect(Collectors.toList());

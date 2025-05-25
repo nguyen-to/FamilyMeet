@@ -10,3 +10,4 @@ server:
 
 setTime:
   refreshToken : 604800
+  accessToken : 30000

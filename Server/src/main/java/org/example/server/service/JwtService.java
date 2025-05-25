@@ -18,20 +18,24 @@ import java.util.Map;
 @Service
 public class JwtService {
     private final String jwrSecret = "nlhasdhsahdsadjsadhasdhasdhasjasjdasdsadsđasad";
-    private final long jwtExpiration = 360000;
+    @Value("${setTime.accessToken}")
+    private long jwtExpiration;
 
     @Value("${setTime.refreshToken}")
     private long refresh_tokenExpiration;
 
     // Generate Access Token
-    public String generateAccessToken(Authentication authentication) {
-        return generateToken(authentication,jwtExpiration,new HashMap<>());
+    public String generateAccessToken(Authentication authentication,String deviceId) {
+        Map<String, String> claims = new HashMap<>();
+        claims.put("deviceId",deviceId);
+        return generateToken(authentication,jwtExpiration,claims);
     }
 
     // Generate Refresh Token
-    public String generateRefreshToken(Authentication authentication) {
+    public String generateRefreshToken(Authentication authentication,String deviceId) {
         Map<String, String> claims = new HashMap<>();
         claims.put("tokenType","refresh");
+        claims.put("deviceId",deviceId);
         return generateToken(authentication,refresh_tokenExpiration,claims);
     }
     // validate token user
@@ -59,7 +63,7 @@ public class JwtService {
                 .subject(userDetails.getUsername())
                 .claims(claims)
                 .issuedAt(now)
-                .expiration(new Date(now.getTime() + refresh_tokenExpiration))
+                .expiration(new Date(now.getTime() + jwtExpiration))
                 .signWith(getSecretKey())
                 .compact();
     }
@@ -72,7 +76,11 @@ public class JwtService {
         }
         return null;
     }
-
+    // extract deviceId to token
+    public String extractDeviceIdToToken(String token) {
+        Claims claims = extractAllClaims(token);
+        return claims != null ? claims.get("deviceId", String.class) : null;
+    }
     private Claims extractAllClaims(String token) {
         Claims claims = null;
         try{
