@@ -179,7 +179,7 @@ public class AuthControllerService {
                     .build();
         }
         try {
-            userService.changePassword(changeRequest.getEmail(), changeRequest.getNewPassword());
+            userService.changePassword(changeRequest.getEmail(), passwordEncoder.encode(changeRequest.getNewPassword()));
         }catch (Exception e) {
             throw new IllegalStateException("Invalid email");
         }
