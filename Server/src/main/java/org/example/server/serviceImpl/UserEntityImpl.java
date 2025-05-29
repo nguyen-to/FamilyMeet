@@ -16,7 +16,7 @@ import java.util.Optional;
 public class UserEntityImpl implements UserService {
     private final UserRepository userRepository;
     private final RedisService redisService;
-    private final StringBuffer UserKey = new StringBuffer("user:");
+    private final String UserKey = "user:";
 
     @Autowired
     public UserEntityImpl(UserRepository userRepository, RedisService redisService) {
@@ -24,16 +24,15 @@ public class UserEntityImpl implements UserService {
         this.redisService = redisService;
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     @Override
     public UserEntity findByEmail(String email) {
-        UserKey.append(email);
-        Optional<UserEntity> userEntity = redisService.getRedis(UserKey.toString(), UserEntity.class);
+        Optional<UserEntity> userEntity = redisService.getRedis(UserKey + email, UserEntity.class);
         if (userEntity.isPresent()) {
             return userEntity.get();
         }else{
             Optional<UserEntity> optionalUserEntity = userRepository.findByEmail(email);
-            optionalUserEntity.ifPresent(entity -> redisService.saveRedis(UserKey.toString(), entity));
+            optionalUserEntity.ifPresent(entity -> redisService.saveRedis(UserKey + email, entity));
             return optionalUserEntity.orElse(null);
         }
     }
@@ -42,16 +41,14 @@ public class UserEntityImpl implements UserService {
     @Override
     public UserEntity saveUserEntity(UserEntity userEntity) {
         UserEntity savedUserEntity = userRepository.save(userEntity);
-        UserKey.append(userEntity.getEmail());
-        redisService.saveRedis(UserKey.toString(), savedUserEntity, Duration.ofHours(10));
+        redisService.saveRedis(UserKey + savedUserEntity.getEmail(), savedUserEntity, Duration.ofHours(10));
         return savedUserEntity;
     }
 
     @Transactional
     @Override
     public void deleteUserEntity(String email) {
-        UserKey.append(email);
-        redisService.deleteKey(UserKey.toString());
+        redisService.deleteKey(UserKey + email);
         userRepository.deleteByEmail(email);
     }
 
@@ -63,8 +60,7 @@ public class UserEntityImpl implements UserService {
     @Transactional
     @Override
     public void changePassword(String email, String newPassword) {
-        UserKey.append(email);
-        redisService.deleteKey(UserKey.toString());
+        redisService.deleteKey(UserKey + email);
         userRepository.updatePassword(email, newPassword);
     }
 
@@ -72,8 +68,7 @@ public class UserEntityImpl implements UserService {
     @Override
     public UserEntity updateUserEntity(UserEntity userEntity) {
         UserEntity savedUserEntity = userRepository.save(userEntity);
-        UserKey.append(userEntity.getEmail());
-        redisService.saveRedis(UserKey.toString(), savedUserEntity, Duration.ofHours(10));
+        redisService.saveRedis(UserKey + userEntity.getEmail(), savedUserEntity, Duration.ofHours(10));
         return savedUserEntity;
     }
 }
