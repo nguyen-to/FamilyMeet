@@ -2,17 +2,19 @@ package org.example.server.dto;
 
 import lombok.Builder;
 
+import java.time.LocalDate;
+
 @Builder
 public class FamilyDTO {
     private Long id;
     private String familyName;
     private String familyCode;
-    private String createAt;
+    private LocalDate createAt;
 
     public FamilyDTO() {
     }
 
-    public FamilyDTO(Long id, String familyName, String familyCode, String createAt) {
+    public FamilyDTO(Long id, String familyName, String familyCode, LocalDate createAt) {
         this.id = id;
         this.familyName = familyName;
         this.familyCode = familyCode;
@@ -43,11 +45,11 @@ public class FamilyDTO {
         this.familyCode = familyCode;
     }
 
-    public String getCreateAt() {
+    public LocalDate getCreateAt() {
         return createAt;
     }
 
-    public void setCreateAt(String createAt) {
+    public void setCreateAt(LocalDate createAt) {
         this.createAt = createAt;
     }
 }

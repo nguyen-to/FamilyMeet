@@ -10,4 +10,5 @@ import java.util.Optional;
 public interface FamilyRepository extends JpaRepository<Family,Long> {
     Optional<Family> findFamilyByFamilyName(String familyName);
     Optional<Family> findFamilyByFamilyCode(String familyCode);
+    void deleteFamilyByFamilyCode(String familyCode);
 }
