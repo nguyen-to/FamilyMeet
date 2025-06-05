@@ -5,7 +5,6 @@ import org.example.server.repository.UserRepository;
 import org.example.server.service.RedisService;
 import org.example.server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

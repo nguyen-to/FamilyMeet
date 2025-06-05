@@ -1,6 +1,5 @@
 package org.example.server.service;
 import org.example.server.entity.UserEntity;
-import java.util.Optional;
 
 public interface UserService {
     public UserEntity findByEmail(String email);

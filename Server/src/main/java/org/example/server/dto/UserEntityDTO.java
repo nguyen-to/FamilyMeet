@@ -11,4 +11,5 @@ public class UserEntityDTO {
     private String fullName;
     private String phone;
     private Set<CustomUserDetails> customUserDetails;
+    
 }
