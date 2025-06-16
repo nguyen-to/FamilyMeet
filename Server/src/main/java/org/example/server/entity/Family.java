@@ -18,16 +18,20 @@ public class Family {
     @Column(name = "family_code")
     private String familyCode;
 
+    @Column(name = "avatar_url")
+    private String avatarUrl;
+
     @Column(name = "create_at")
     private LocalDate createAt;
 
     public Family() {
     }
 
-    public Family(Long id, String familyName, String familyCode, LocalDate createAt) {
+    public Family(Long id, String familyName, String familyCode, String avatarUrl, LocalDate createAt) {
         this.id = id;
         this.familyName = familyName;
         this.familyCode = familyCode;
+        this.avatarUrl = avatarUrl;
         this.createAt = createAt;
     }
 
@@ -61,5 +65,13 @@ public class Family {
 
     public void setCreateAt(LocalDate createAt) {
         this.createAt = createAt;
+    }
+
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
     }
 }

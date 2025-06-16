@@ -20,6 +20,9 @@ public class GroupEntity {
     @Column(name = "description" ,columnDefinition = "TEXT")
     private String description;
 
+    @Column(name = "avatar_url")
+    private String avatarUrl;
+
     @Column(name = "create_at")
     private LocalDateTime createAt;
 
@@ -35,10 +38,12 @@ public class GroupEntity {
 
     }
 
-    public GroupEntity(Long id, String name, String description, LocalDateTime createAt, Family family, UserEntity owner) {
+
+    public GroupEntity(Long id, String name, String description, String avatarUrl, LocalDateTime createAt, Family family, UserEntity owner) {
         this.id = id;
         this.name = name;
         this.description = description;
+        this.avatarUrl = avatarUrl;
         this.createAt = createAt;
         this.family = family;
         this.owner = owner;
@@ -90,5 +95,13 @@ public class GroupEntity {
 
     public void setOwner(UserEntity owner) {
         this.owner = owner;
+    }
+
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
     }
 }
