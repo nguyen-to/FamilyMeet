@@ -23,6 +23,12 @@ public class CustomUserDetails implements UserDetails {
         return user.getRoles().stream().filter(Objects::nonNull).map(roles -> new SimpleGrantedAuthority(roles.getRole().name())).collect(Collectors.toList());
     }
 
+    public String getFullName() {
+        return user.getFullName();
+    }
+    public String getPicture() {
+        return user.getPicture();
+    }
     @Override
     public String getPassword() {
         return user.getPassword();

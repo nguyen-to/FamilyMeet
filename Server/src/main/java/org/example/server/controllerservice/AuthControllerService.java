@@ -51,7 +51,8 @@ public class AuthControllerService {
                         loginRequest.getPassword()
                 )
         );
-        String email = ((CustomUserDetails) authentication.getPrincipal()).getUsername();
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        String email = userDetails.getUsername();
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String token = jwtService.generateAccessToken(authentication, loginRequest.getDeviceId());
         String refreshToken = jwtService.generateRefreshToken(authentication,loginRequest.getDeviceId());
@@ -60,15 +61,23 @@ public class AuthControllerService {
         return LoginResponse.builder()
                 .accessToken(token)
                 .refreshToken(refreshToken)
+                .email(userDetails.getUsername())
+                .fullName(userDetails.getFullName())
+                .picture(userDetails.getPicture())
+                .deviceId(loginRequest.getDeviceId())
                 .build();
     }
     public LoginResponse ActiveLoginFirebase(LoginRequest loginRequest) {
         String email = null;
         String uId = null;
+        String fullName = null;
+        String picture = null;
         try{
             FirebaseToken firebaseToken = FirebaseAuth.getInstance().verifyIdToken(loginRequest.getPassword()); // authentication IdToken with Firebase Admin
             email = firebaseToken.getEmail();  // get email to idToken
             uId = firebaseToken.getUid();       // get uId to idToken
+            fullName = firebaseToken.getName();
+            picture = firebaseToken.getPicture();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -83,6 +92,8 @@ public class AuthControllerService {
                     .email(email)
                     .password(passwordEncoder.encode(uId))
                     .roles(rolesSet)
+                    .fullName(fullName)
+                    .picture(picture)
                     .build();
             userService.saveUserEntity(userEntity1);
             customUserDetails = new CustomUserDetails(userEntity1);
@@ -106,6 +117,10 @@ public class AuthControllerService {
         return LoginResponse.builder()
                 .refreshToken(refreshToken)
                 .accessToken(accessToken)
+                .email(email)
+                .picture(picture)
+                .fullName(fullName)
+                .deviceId(loginRequest.getDeviceId())
                 .build();
     }
     public DataFormResponse<String> ActiveRegister(RegisterRequest registerRequest) {
