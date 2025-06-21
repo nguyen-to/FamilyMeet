@@ -10,25 +10,28 @@ import {
   Phone,
   Check,
 } from "lucide-react";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import BackgrondDecoration from "../../component/backgrounddecoration";
 import InputType from "../../component/inputype/InputType";
 import SocialAuth from "../../component/socialauth/SocialAuth";
-
+import { AuthApi } from "../../auth/AuthApi";
+import type { AuthRegisterRequest } from "../../formstyle/AuthForm";
+import { toast } from "react-toastify";
+type LoginForm = {
+  email: string;
+  password: string;
+  deviceId: string;
+};
 export default function FamilyMeetRegister() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const Navigate = useNavigate();
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
     phone: "",
     password: "",
     confirmPassword: "",
-  });
-  const [agreements, setAgreements] = useState({
-    terms: false,
-    privacy: false,
-    marketing: false,
   });
 
   const handleInputChange = (field: string, value: string) => {
@@ -38,18 +41,47 @@ export default function FamilyMeetRegister() {
     }));
   };
 
-  const handleAgreementChange = (field, value) => {
-    setAgreements((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    const data: AuthRegisterRequest = {
+      fullName: formData.fullName,
+      email: formData.email,
+      phone: formData.phone,
+      password: formData.password,
+    };
+    AuthApi.RegisterApi(data)
+      .then((response) => {
+        if (response.data.message === "Register Successful") {
+          Navigate({
+            to: "/auth/login",
+          });
+        } else {
+          toast.error("Email đã được sử dụng.");
+        }
+      })
+      .catch(() => {
+        toast.error("Email đã được sử dụng, vui lòng thử lại.");
+      });
   };
-
-  const handleSubmit = () => {
-    // Handle registration logic here
-    console.log("Registration attempt:", { formData, agreements });
+  const HandleSuccess = (data: { email: string; tokenFirebase: string }) => {
+    const loginData: LoginForm = {
+      email: data.email,
+      password: data.tokenFirebase,
+      deviceId: Math.floor(100000 + Math.random() * 900000).toString(),
+    };
+    AuthApi.LoginFirebaseApi(loginData)
+      .then(() => {
+        Navigate({
+          to: "/",
+        });
+      })
+      .catch(() => {
+        toast.error("Đăng nhập thất bại, vui lòng thử lại sau.");
+      });
   };
-
+  const HandleError = (error: string) => {
+    console.error("Social login error:", error);
+  };
   const isPasswordMatch =
     formData.password &&
     formData.confirmPassword &&
@@ -60,16 +92,12 @@ export default function FamilyMeetRegister() {
     formData.phone &&
     formData.password &&
     formData.confirmPassword &&
-    isPasswordMatch &&
-    agreements.terms &&
-    agreements.privacy;
+    isPasswordMatch;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-800 flex items-center justify-center p-4">
       <BackgrondDecoration />
-      {/* Register Container */}
       <div className="relative w-full max-w-md">
-        {/* Back Button */}
         <button className="absolute -top-16 left-0 flex items-center space-x-2 text-white/80 hover:text-white transition-colors">
           <ArrowLeft className="h-5 w-5" />
           <span>Về Trang Đăng Nhập</span>
@@ -77,7 +105,6 @@ export default function FamilyMeetRegister() {
 
         {/* Register Card */}
         <div className="bg-white/10 backdrop-blur-lg rounded-3xl p-8 shadow-2xl border border-white/20">
-          {/* Header */}
           <div className="text-center mb-8">
             <div className="flex justify-center mb-4">
               <div className="bg-gradient-to-r from-green-400 to-blue-500 p-3 rounded-2xl">
@@ -93,7 +120,7 @@ export default function FamilyMeetRegister() {
           </div>
 
           {/* Register Form */}
-          <div className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-5">
             {/* Full Name Field */}
             <InputType
               type="text"
@@ -220,7 +247,7 @@ export default function FamilyMeetRegister() {
 
             {/* Register Button */}
             <button
-              onClick={handleSubmit}
+              type="submit"
               disabled={!isFormValid}
               className={`w-full py-3 rounded-xl font-semibold transition-all shadow-lg ${
                 isFormValid
@@ -234,6 +261,8 @@ export default function FamilyMeetRegister() {
             <SocialAuth
               buttonText={{ google: "Google", facebook: "FaceBook" }}
               text="hoặc đăng ký với"
+              onSuccess={HandleSuccess}
+              onError={HandleError}
             />
 
             {/* Login Link */}
@@ -248,7 +277,7 @@ export default function FamilyMeetRegister() {
                 </Link>
               </p>
             </div>
-          </div>
+          </form>
         </div>
       </div>
     </div>

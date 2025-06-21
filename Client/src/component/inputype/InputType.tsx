@@ -13,11 +13,11 @@ interface InputProps {
   rightIcon?: React.ReactNode;
   error?: string;
   className?: string;
-  id?: string; 
-  name?: string; 
+  id?: string;
+  name?: string;
 }
 
- const InputType = ({
+export const InputType = ({
   type = "text",
   value,
   onChange,

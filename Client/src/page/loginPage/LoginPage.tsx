@@ -1,18 +1,69 @@
 import { useState } from "react";
 import { Users, Eye, EyeOff, Mail, Lock, ArrowLeft } from "lucide-react";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import BackgrondDecoration from "../../component/backgrounddecoration";
 import SocialAuth from "../../component/socialauth/SocialAuth";
+import { AuthApi } from "../../auth/AuthApi";
+import InputType from "../../component/inputype/InputType";
+import { toast } from "react-toastify";
+
+type LoginForm = {
+  email: string;
+  password: string;
+  deviceId: string;
+};
 
 export default function FamilyMeetLogin() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
-
-  const handleSubmit = () => {
-    // Handle login logic here
-    console.log("Login attempt:", { email, password, rememberMe });
+const Navigate = useNavigate();
+ 
+  const HandleSuccess = (data: { email: string; tokenFirebase: string }) => {
+      toast.error("Email hoặc mật khẩu không đúng, vui lòng thử lại.");
+    const loginData: LoginForm = {
+      email: data.email,
+      password: data.tokenFirebase,
+      deviceId: Math.floor(100000 + Math.random() * 900000).toString(),
+    };
+    AuthApi.LoginFirebaseApi(loginData)
+      .then(() => {
+        Navigate({
+          to: "/",
+          replace: true,
+        });
+      })
+      .catch(() => {
+        toast.error("Đăng nhập thất bại, vui lòng thử lại sau.");
+      });
+  };
+  const HandleError = (error: string) => {
+    console.error("Social login error:", error);
+  };
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    const deviceId = Math.floor(100000 + Math.random() * 900000).toString();
+    const loginData: LoginForm = {
+      email,
+      password,
+      deviceId,
+    };
+    AuthApi.LoginApi(loginData)
+      .then((response) => {
+        if (response.data.data) {
+          Navigate({
+            to: "/",
+            replace: true,
+          });
+        } else {
+          toast.error("Email hoặc mật khẩu không đúng, vui lòng thử lại.");
+        }
+      })
+      .catch(() => {
+        toast.error("Email hoặc mật khẩu không đúng, vui lòng thử lại.");
+      });
+    
   };
 
   return (
@@ -28,7 +79,10 @@ export default function FamilyMeetLogin() {
         </button>
 
         {/* Login Card */}
-        <form className="bg-white/10 backdrop-blur-lg rounded-3xl p-8 shadow-2xl border border-white/20">
+        <form
+          onSubmit={handleSubmit}
+          className="bg-white/10 backdrop-blur-lg rounded-3xl p-8 shadow-2xl border border-white/20"
+        >
           {/* Header */}
           <div className="text-center mb-8">
             <div className="flex justify-center mb-4">
@@ -51,10 +105,10 @@ export default function FamilyMeetLogin() {
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <Mail className="h-5 w-5 text-white/50" />
                 </div>
-                <input
+                <InputType
                   type="email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => setEmail(e)}
                   className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all"
                   placeholder="Nhập email của bạn"
                   required
@@ -71,10 +125,10 @@ export default function FamilyMeetLogin() {
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <Lock className="h-5 w-5 text-white/50" />
                 </div>
-                <input
+                <InputType
                   type={showPassword ? "text" : "password"}
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) => setPassword(e)}
                   className="w-full pl-10 pr-12 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all"
                   placeholder="Nhập mật khẩu"
                   required
@@ -106,25 +160,28 @@ export default function FamilyMeetLogin() {
                   Ghi nhớ đăng nhập
                 </span>
               </label>
-              <a
-                href="#"
+              <Link
+              to = "/auth/changepassword"
                 className="text-sm text-yellow-300 hover:text-yellow-200 transition-colors"
               >
                 Quên mật khẩu?
-              </a>
+              </Link>
             </div>
 
             {/* Login Button */}
             <button
-              onClick={handleSubmit}
+              type="submit"
               className="w-full bg-gradient-to-r from-yellow-400 to-orange-500 text-white py-3 rounded-xl font-semibold hover:from-yellow-500 hover:to-orange-600 transform hover:scale-105 transition-all shadow-lg"
             >
               Đăng Nhập
             </button>
 
-            
-
-            <SocialAuth buttonText={{google :"Google",facebook:"FaceBook"}} text="hoặc đăng nhập với" />
+            <SocialAuth
+              buttonText={{ google: "Google", facebook: "FaceBook" }}
+              text="hoặc đăng nhập với"
+              onSuccess={HandleSuccess}
+              onError={HandleError}
+            />
 
             {/* Sign Up Link */}
             <div className="text-center">
