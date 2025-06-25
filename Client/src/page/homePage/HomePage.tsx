@@ -37,12 +37,12 @@ export default function FamilyMeetHomepage() {
                 >
                   Trang Chủ
                 </a>
-                <a
-                  href="#"
+                <Link
+                to="/feature"
                   className="text-white/90 hover:text-white transition-colors"
                 >
                   Tính Năng
-                </a>
+                </Link>
                 <a
                   href="#"
                   className="text-white/90 hover:text-white transition-colors"

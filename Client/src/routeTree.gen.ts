@@ -9,14 +9,26 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as FeatureRouteImport } from './routes/feature'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as FamilymeetIndexRouteImport } from './routes/familymeet/index'
 import { Route as AuthRegisterRouteImport } from './routes/auth/register'
 import { Route as AuthLoginRouteImport } from './routes/auth/login'
 import { Route as AuthChangepasswordRouteImport } from './routes/auth/changepassword'
 
+const FeatureRoute = FeatureRouteImport.update({
+  id: '/feature',
+  path: '/feature',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FamilymeetIndexRoute = FamilymeetIndexRouteImport.update({
+  id: '/familymeet/',
+  path: '/familymeet/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRegisterRoute = AuthRegisterRouteImport.update({
@@ -37,50 +49,86 @@ const AuthChangepasswordRoute = AuthChangepasswordRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/feature': typeof FeatureRoute
   '/auth/changepassword': typeof AuthChangepasswordRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
+  '/familymeet': typeof FamilymeetIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/feature': typeof FeatureRoute
   '/auth/changepassword': typeof AuthChangepasswordRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
+  '/familymeet': typeof FamilymeetIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/feature': typeof FeatureRoute
   '/auth/changepassword': typeof AuthChangepasswordRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
+  '/familymeet/': typeof FamilymeetIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth/changepassword' | '/auth/login' | '/auth/register'
-  fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth/changepassword' | '/auth/login' | '/auth/register'
-  id:
-    | '__root__'
+  fullPaths:
     | '/'
+    | '/feature'
     | '/auth/changepassword'
     | '/auth/login'
     | '/auth/register'
+    | '/familymeet'
+  fileRoutesByTo: FileRoutesByTo
+  to:
+    | '/'
+    | '/feature'
+    | '/auth/changepassword'
+    | '/auth/login'
+    | '/auth/register'
+    | '/familymeet'
+  id:
+    | '__root__'
+    | '/'
+    | '/feature'
+    | '/auth/changepassword'
+    | '/auth/login'
+    | '/auth/register'
+    | '/familymeet/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  FeatureRoute: typeof FeatureRoute
   AuthChangepasswordRoute: typeof AuthChangepasswordRoute
   AuthLoginRoute: typeof AuthLoginRoute
   AuthRegisterRoute: typeof AuthRegisterRoute
+  FamilymeetIndexRoute: typeof FamilymeetIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/feature': {
+      id: '/feature'
+      path: '/feature'
+      fullPath: '/feature'
+      preLoaderRoute: typeof FeatureRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/familymeet/': {
+      id: '/familymeet/'
+      path: '/familymeet'
+      fullPath: '/familymeet'
+      preLoaderRoute: typeof FamilymeetIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth/register': {
@@ -109,9 +157,11 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  FeatureRoute: FeatureRoute,
   AuthChangepasswordRoute: AuthChangepasswordRoute,
   AuthLoginRoute: AuthLoginRoute,
   AuthRegisterRoute: AuthRegisterRoute,
+  FamilymeetIndexRoute: FamilymeetIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
