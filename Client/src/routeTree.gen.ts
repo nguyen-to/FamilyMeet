@@ -15,6 +15,8 @@ import { Route as FamilymeetIndexRouteImport } from './routes/familymeet/index'
 import { Route as AuthRegisterRouteImport } from './routes/auth/register'
 import { Route as AuthLoginRouteImport } from './routes/auth/login'
 import { Route as AuthChangepasswordRouteImport } from './routes/auth/changepassword'
+import { Route as FamilylayoutMaincontentRouteImport } from './routes/_familylayout/maincontent'
+import { Route as FamilylayoutFamilylayoutRouteImport } from './routes/_familylayout/_familylayout'
 
 const FeatureRoute = FeatureRouteImport.update({
   id: '/feature',
@@ -46,10 +48,21 @@ const AuthChangepasswordRoute = AuthChangepasswordRouteImport.update({
   path: '/auth/changepassword',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FamilylayoutMaincontentRoute = FamilylayoutMaincontentRouteImport.update({
+  id: '/_familylayout/maincontent',
+  path: '/maincontent',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FamilylayoutFamilylayoutRoute =
+  FamilylayoutFamilylayoutRouteImport.update({
+    id: '/_familylayout/_familylayout',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/feature': typeof FeatureRoute
+  '/maincontent': typeof FamilylayoutMaincontentRoute
   '/auth/changepassword': typeof AuthChangepasswordRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
@@ -58,6 +71,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/feature': typeof FeatureRoute
+  '/maincontent': typeof FamilylayoutMaincontentRoute
   '/auth/changepassword': typeof AuthChangepasswordRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
@@ -67,6 +81,8 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/feature': typeof FeatureRoute
+  '/_familylayout/_familylayout': typeof FamilylayoutFamilylayoutRoute
+  '/_familylayout/maincontent': typeof FamilylayoutMaincontentRoute
   '/auth/changepassword': typeof AuthChangepasswordRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
@@ -77,6 +93,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/feature'
+    | '/maincontent'
     | '/auth/changepassword'
     | '/auth/login'
     | '/auth/register'
@@ -85,6 +102,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/feature'
+    | '/maincontent'
     | '/auth/changepassword'
     | '/auth/login'
     | '/auth/register'
@@ -93,6 +111,8 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/feature'
+    | '/_familylayout/_familylayout'
+    | '/_familylayout/maincontent'
     | '/auth/changepassword'
     | '/auth/login'
     | '/auth/register'
@@ -102,6 +122,8 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   FeatureRoute: typeof FeatureRoute
+  FamilylayoutFamilylayoutRoute: typeof FamilylayoutFamilylayoutRoute
+  FamilylayoutMaincontentRoute: typeof FamilylayoutMaincontentRoute
   AuthChangepasswordRoute: typeof AuthChangepasswordRoute
   AuthLoginRoute: typeof AuthLoginRoute
   AuthRegisterRoute: typeof AuthRegisterRoute
@@ -152,12 +174,28 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthChangepasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_familylayout/maincontent': {
+      id: '/_familylayout/maincontent'
+      path: '/maincontent'
+      fullPath: '/maincontent'
+      preLoaderRoute: typeof FamilylayoutMaincontentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_familylayout/_familylayout': {
+      id: '/_familylayout/_familylayout'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof FamilylayoutFamilylayoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   FeatureRoute: FeatureRoute,
+  FamilylayoutFamilylayoutRoute: FamilylayoutFamilylayoutRoute,
+  FamilylayoutMaincontentRoute: FamilylayoutMaincontentRoute,
   AuthChangepasswordRoute: AuthChangepasswordRoute,
   AuthLoginRoute: AuthLoginRoute,
   AuthRegisterRoute: AuthRegisterRoute,

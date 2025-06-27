@@ -5,7 +5,7 @@ import FamilyToggle from "../addfamily/FamilyToggle";
 
 export default function NoFamilyJoined() {
   const [inviteCode, setInviteCode] = useState("");
-    const [familyToggle, setFamilyToggle] = useState(false);
+  const [familyToggle, setFamilyToggle] = useState(false);
   const handleJoinViaLink = () => {
     alert("Đang mở tính năng tham gia qua link...");
   };
@@ -23,9 +23,10 @@ export default function NoFamilyJoined() {
   const HandleSubmitAddFamily = (name: string, code: string) => {
     alert(`Đã tạo gia đình mới: ${name} với mã: ${code}`);
     setFamilyToggle(false);
-  }
+  };
   return (
     <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-3xl p-4 sm:p-6 md:p-8 shadow-2xl max-w-lg w-full mx-auto">
+      
       {/* Thông báo */}
       <div className="text-center mb-8">
         <div className="w-20 h-20 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -112,9 +113,12 @@ export default function NoFamilyJoined() {
           </div>
         </div>
       </div>
-      {
-        familyToggle && <FamilyToggle onSubmit={HandleSubmitAddFamily} onClose={() => setFamilyToggle(false)} />
-      }
+      {familyToggle && (
+        <FamilyToggle
+          onSubmit={HandleSubmitAddFamily}
+          onClose={() => setFamilyToggle(false)}
+        />
+      )}
     </div>
   );
 }
