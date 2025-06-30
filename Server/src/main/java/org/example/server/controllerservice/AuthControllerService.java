@@ -188,6 +188,7 @@ public class AuthControllerService {
 
     public DataFormResponse<String> ActiveChangePassword(ChangeRequest changeRequest) {
         UserEntity userEntity = userService.findByEmail(changeRequest.getEmail());
+        log.info("userEntity:"+userEntity);
         if(userEntity == null) {
             return DataFormResponse.<String>builder()
                     .message("User not found")
@@ -195,6 +196,7 @@ public class AuthControllerService {
         }
         try {
             userService.changePassword(changeRequest.getEmail(), passwordEncoder.encode(changeRequest.getNewPassword()));
+            log.info("errorr");
         }catch (Exception e) {
             throw new IllegalStateException("Invalid email");
         }

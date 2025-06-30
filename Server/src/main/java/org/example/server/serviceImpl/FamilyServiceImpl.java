@@ -25,7 +25,7 @@ public class FamilyServiceImpl implements FamilyService {
 
     @Transactional
     @Override
-    public FamilyDTO addFamily(Family family) {
+    public Family addFamily(Family family) {
         Family savedFamily = familyRepository.save(family);
         FamilyDTO familyDTO = FamilyDTO.builder()
                 .id(savedFamily.getId())
@@ -34,7 +34,7 @@ public class FamilyServiceImpl implements FamilyService {
                 .createAt(savedFamily.getCreateAt())
                 .build();
         redisService.saveRedis(familyKey + savedFamily.getFamilyCode(), familyDTO, Duration.ofHours(10));
-        return familyDTO;
+        return savedFamily;
     }
 
     @Transactional
@@ -131,5 +131,17 @@ public class FamilyServiceImpl implements FamilyService {
                 return null;
             }
         }
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public boolean existsByFamilyCode(String familyCode) {
+        return familyRepository.existsByFamilyCode(familyCode);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Family getFamilyEntity(String familyCode) {
+        return familyRepository.findFamilyByFamilyCode(familyCode).orElse(null);
     }
 }

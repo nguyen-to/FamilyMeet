@@ -9,16 +9,26 @@ public class FamilyDTO {
     private Long id;
     private String familyName;
     private String familyCode;
+    private String avatarUrl;
     private LocalDate createAt;
 
     public FamilyDTO() {
     }
 
-    public FamilyDTO(Long id, String familyName, String familyCode, LocalDate createAt) {
+    public FamilyDTO(Long id, String familyName, String familyCode, String avatarUrl, LocalDate createAt) {
         this.id = id;
         this.familyName = familyName;
         this.familyCode = familyCode;
+        this.avatarUrl = avatarUrl;
         this.createAt = createAt;
+    }
+
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
     }
 
     public Long getId() {

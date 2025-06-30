@@ -6,7 +6,7 @@ import org.example.server.entity.Family;
 import java.util.List;
 
 public interface FamilyService {
-    public FamilyDTO addFamily(Family family);
+    public Family addFamily(Family family);
     void deleteFamily(String family);
     public FamilyDTO updateFamily(Family family);
 
@@ -14,4 +14,6 @@ public interface FamilyService {
     public FamilyDTO getFamily(Long id);
     public FamilyDTO getFamilyByFamilyName(String familyName);
     public FamilyDTO getFamilyByFamilyCode(String familyCode);
+    public boolean existsByFamilyCode(String familyCode);
+    public Family getFamilyEntity(String familyCode);
 }
