@@ -8,4 +8,7 @@ import java.util.List;
 public interface FamilyMemberService {
     public FamilyMember addFamily(FamilyMember familyRequest);
     public List<FamilyMemberDTO> getFamilyId(Long id);
+    public FamilyMemberDTO getByFamilyAndUserId(Long familyId, Long userId);
+    public String deleteFamilyMember(Long id);
+    public boolean existsMemberByFamilyId(Long familyCode);
 }

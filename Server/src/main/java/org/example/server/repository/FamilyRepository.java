@@ -12,4 +12,5 @@ public interface FamilyRepository extends JpaRepository<Family,Long> {
     Optional<Family> findFamilyByFamilyCode(String familyCode);
     void deleteFamilyByFamilyCode(String familyCode);
     boolean existsByFamilyCode(String familyCode);
+
 }

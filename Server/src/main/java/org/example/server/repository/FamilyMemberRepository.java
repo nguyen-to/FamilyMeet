@@ -11,5 +11,8 @@ import java.util.Optional;
 public interface FamilyMemberRepository extends JpaRepository<FamilyMember, Long> {
 
     List<FamilyMember> findFamilyMemberByFamil_Id(Long id);
+    Optional<FamilyMember> findFamilyMemberByFamil_IdAndUser_Id(Long id, Long userId);
+    void deleteById(Long id);
 
+    boolean existsByFamil_Id(Long familId);
 }
