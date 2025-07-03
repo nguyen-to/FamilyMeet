@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.server.entity.Family;
 import org.example.server.entity.FamilyMember;
 import org.example.server.entity.UserEntity;
+import org.example.server.request.authrequest.MemberRolesRequest;
 import org.example.server.response.formdata.DataFormResponse;
 import org.example.server.service.FamilyMemberService;
 import org.example.server.service.FamilyService;
@@ -49,9 +50,17 @@ public class FMControllerService {
                 .message("Added family member")
                 .build();
     }
-    public DataFormResponse<String> deleteFamilyMembers(Long memberId, Principal principal) {
+
+    public DataFormResponse<String> deleteFamilyMembers(Long memberId) {
         String response = familyMemberService.deleteFamilyMember(memberId);
         return  DataFormResponse.<String>builder()
+                .message(response)
+                .build();
+    }
+
+    public DataFormResponse<String> updateRolesFamilyMember(MemberRolesRequest memberRoles) {
+        String response = familyMemberService.updateRolesFamilyMember(memberRoles);
+        return DataFormResponse.<String>builder()
                 .message(response)
                 .build();
     }

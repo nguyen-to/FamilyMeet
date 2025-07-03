@@ -5,8 +5,10 @@ import org.example.server.dto.FamilyMemberDTO;
 import org.example.server.entity.FamilyMember;
 import org.example.server.repository.FamilyMemberRepository;
 import org.example.server.request.FamilyRequest;
+import org.example.server.request.authrequest.MemberRolesRequest;
 import org.example.server.service.FamilyMemberService;
 import org.example.server.service.RedisService;
+import org.example.server.utill.FamilyRoles;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -88,6 +90,19 @@ public class FamilyMemberServiceImpl implements FamilyMemberService {
     @Override
     public boolean existsMemberByFamilyId(Long familyId) {
         return familyMemberRepository.existsByFamil_Id(familyId);
+    }
+
+    @Transactional
+    @Override
+    public String updateRolesFamilyMember(MemberRolesRequest memberRoles) {
+        FamilyMember familyMember = familyMemberRepository.findById(memberRoles.getFamilyMemberId()).orElse(null);
+        if (familyMember != null) {
+            FamilyRoles roles = FamilyRoles.valueOf(memberRoles.getRole());
+            familyMember.setRoles(roles);
+            familyMemberRepository.save(familyMember);
+            return "Updated";
+        }
+        return "family Member Not Found";
     }
 
 }
