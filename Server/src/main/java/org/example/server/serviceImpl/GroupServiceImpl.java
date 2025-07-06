@@ -41,4 +41,10 @@ public class GroupServiceImpl implements GroupService {
         }
         return groupDTOs;
     }
+
+    @Transactional(readOnly = true)
+    @Override
+    public GroupEntity getGroup(Long groupId) {
+        return groupRepository.findById(groupId).orElse(null);
+    }
 }

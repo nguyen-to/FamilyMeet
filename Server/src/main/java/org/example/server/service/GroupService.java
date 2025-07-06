@@ -8,4 +8,5 @@ import java.util.List;
 public interface GroupService {
     public GroupEntity addGroup(GroupEntity groupRequest);
     public List<GroupDTO> groups(Long familyId);
+    public GroupEntity getGroup(Long groupId);
 }
