@@ -19,6 +19,8 @@ public class FirebaseConfig {
 
         FirebaseOptions options = FirebaseOptions.builder()
                 .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+                .setReadTimeout(30000)
+                .setConnectTimeout(30000)
                 .build();
 
         if (FirebaseApp.getApps().isEmpty()) {

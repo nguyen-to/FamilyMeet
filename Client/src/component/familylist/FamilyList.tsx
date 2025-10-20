@@ -1,4 +1,5 @@
 // components/FamilyList.tsx
+import { useNavigate } from "@tanstack/react-router";
 import { ChevronRight, UserPlus, Users } from "lucide-react";
 
 export type Family = {
@@ -15,8 +16,11 @@ type Props = {
 };
 
 export default function FamilyList({ families,onClickAddFamily }: Props) {
+  const Navigate = useNavigate();
   const handleJoinFamily = (familyName: string) => {
-    alert(`Đang vào nhóm: ${familyName}`);
+    Navigate({
+      to: "/maincontent",
+    })
   };
   return (
     <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-3xl p-4 sm:p-6 md:p-8 shadow-2xl max-w-lg w-full mx-auto">

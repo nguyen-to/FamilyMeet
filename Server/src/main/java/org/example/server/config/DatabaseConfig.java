@@ -15,7 +15,7 @@ public class DatabaseConfig {
         return DataSourceBuilder.create()
                 .url("jdbc:postgresql://localhost:5432/familymeet")
                 .username("postgres")
-                .password("leto200124")
+                .password("leto2004")
                 .build();
     }
 }

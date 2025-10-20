@@ -82,7 +82,9 @@ public class AuthControllerService {
             throw new RuntimeException(e);
         }
         UserEntity userEntity = userService.findByEmail(email);
+
         CustomUserDetails customUserDetails = null;
+        log.info("user active: {} ", userEntity);
         // user is null save database
         if(userEntity == null) {
             Roles roles = rolesService.getRoles(RolesEnum.USER);
@@ -150,7 +152,7 @@ public class AuthControllerService {
     public DataFormResponse<RefreshTokenResponse> ActiveRefreshToken(String refreshToken,String deviceId) {
 
         // check refresh Token for redis
-        String emailRedis = jwtService.extractEmailToToken(refreshToken);
+        String emailRedis = jwtService.extractDeviceIdFromToken(refreshToken);
         if(!refreshTokenService.checkRefreshToken(refreshToken,emailRedis,deviceId)) {
             throw new IllegalStateException("Invalid refresh token");
         }
@@ -158,7 +160,7 @@ public class AuthControllerService {
         if(!jwtService.validateRefreshToken(refreshToken)) {
             throw new IllegalStateException("Invalid refresh token");
         }
-        String email = jwtService.extractEmailToToken(refreshToken);
+        String email = jwtService.extractDeviceIdFromToken(refreshToken);
         UserDetails userDetails = userDetailsService.loadUserByUsername(email);
 
         if(userDetails == null) {

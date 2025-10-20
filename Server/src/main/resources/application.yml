@@ -9,5 +9,8 @@ server:
   port: 8000
 
 setTime:
-  refreshToken : 60480000
-  accessToken : 3000000
+  refreshToken: 30
+  accessToken: 300
+
+jwt:
+  secret: ${JWT_SECRET}

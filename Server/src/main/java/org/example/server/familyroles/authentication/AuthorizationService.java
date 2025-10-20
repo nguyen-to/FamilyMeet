@@ -3,7 +3,6 @@ package org.example.server.familyroles.authentication;
 import lombok.RequiredArgsConstructor;
 import org.example.server.dto.FamilyMemberDTO;
 import org.example.server.exception.FamilyException;
-import org.example.server.repository.FamilyMemberRepository;
 import org.example.server.repository.FamilyRepository;
 import org.example.server.repository.GroupRepository;
 import org.example.server.repository.UserRepository;

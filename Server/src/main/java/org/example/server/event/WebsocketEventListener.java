@@ -2,7 +2,6 @@ package org.example.server.event;
 
 import lombok.RequiredArgsConstructor;
 import org.example.server.response.UserStatusMessage;
-import org.example.server.service.RedisService;
 import org.springframework.context.event.EventListener;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.messaging.simp.SimpMessagingTemplate;

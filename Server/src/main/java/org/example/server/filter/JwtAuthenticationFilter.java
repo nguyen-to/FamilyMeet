@@ -39,12 +39,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }else{
             jwt = authHeader.substring(7); // token
         }
-        if(jwtService.isValidateToken(jwt))
+        if(jwtService.isTokenExpired(jwt))
         {
             filterChain.doFilter(request, response);
             return;
         }
-        String email = jwtService.extractEmailToToken(jwt);
+        String email = jwtService.extractEmailFromToken(jwt);
         if(!refreshTokenService.checkAccessToken(jwt, email)) // check 1 device 1 access token
         {
             filterChain.doFilter(request, response);

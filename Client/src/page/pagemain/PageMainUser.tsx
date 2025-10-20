@@ -3,24 +3,30 @@ import { useState } from "react";
 import NoFamilyJoined from "../../component/nofamilyjoined/NoFamilyJoined";
 import FamilyList, { type Family } from "../../component/familylist/FamilyList";
 import { ChevronRight } from "lucide-react";
+import { useNavigate } from "@tanstack/react-router";
 
 export default function PageMainUser() {
   const [addFamily, setAddFamily] = useState(true);
   const [families, setFamilies] = useState<Family[]>([
     { id: "1", name: "Gia đình Nguyễn", members: 4, role: "Chủ hộ" },
     { id: "2", name: "Gia đình Trần", members: 3, role: "Thành viên" },
-    { id: "3", name: "Gia đình Lê", members: 5, role: "Thành viên" },
   ]);
-
+const Navigate = useNavigate();
   const handleEnterFamily = (familyId: string) => {
     console.log("Chuyển sang giao diện nhóm:", familyId);
-    // TODO: điều hướng đến trang dashboard riêng cho nhóm
+    Navigate({
+      to: "/maincontent",
+    })
   };
   const HandleOnclickBack = () => {
-    setAddFamily(!addFamily);
+    Navigate({
+      to: "/maincontent",
+    })
   };
   const HandleOnAddFamily = () => {
-    setAddFamily(!addFamily);
+    Navigate({
+      to: "/maincontent",
+    })
   };
   return (
     <div className="bg-gradient-to-b from-blue-700 via-blue-800 to-purple-900 min-h-screen">

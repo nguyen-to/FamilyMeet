@@ -1,7 +1,7 @@
 package org.example.server.service;
 
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,85 +17,98 @@ import java.util.Map;
 
 @Service
 public class JwtService {
-    private final String jwrSecret = "nlhasdhsahdsadjsadhasdhasdhasjasjdasdsadsđasad";
+    @Value("${jwt.secret}")
+    private String jwtSecret;
+
     @Value("${setTime.accessToken}")
-    private long jwtExpiration;
+    private long accessTokenMinutes; // tính theo phút
 
     @Value("${setTime.refreshToken}")
-    private long refresh_tokenExpiration;
+    private long refreshTokenMinutes; // tính theo phút
 
-    // Generate Access Token
-    public String generateAccessToken(Authentication authentication,String deviceId) {
-        Map<String, String> claims = new HashMap<>();
-        claims.put("deviceId",deviceId);
-        return generateToken(authentication,jwtExpiration,claims);
+    //Generate Access Token
+    public String generateAccessToken(Authentication authentication, String deviceId) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("deviceId", deviceId);
+        claims.put("tokenType", "access");
+        return generateToken(authentication, accessTokenMinutes, claims);
     }
 
-    // Generate Refresh Token
-    public String generateRefreshToken(Authentication authentication,String deviceId) {
-        Map<String, String> claims = new HashMap<>();
-        claims.put("tokenType","refresh");
-        claims.put("deviceId",deviceId);
-        return generateToken(authentication,refresh_tokenExpiration,claims);
+    //Generate Refresh Token
+    public String generateRefreshToken(Authentication authentication, String deviceId) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("tokenType", "refresh");
+        claims.put("deviceId", deviceId);
+        return generateToken(authentication, refreshTokenMinutes, claims);
     }
-    // validate token user
+
+    //Validate Access Token
     public boolean validateToken(String token, UserDetails userDetails) {
-        String email = extractEmailToToken(token);
-        return email != null && email.equals(userDetails.getUsername());
+        try {
+            final String email = extractEmailFromToken(token);
+            return email.equals(userDetails.getUsername()) && !isTokenExpired(token);
+        } catch (Exception e) {
+            return false;
+        }
     }
-    // validate refresh token
+
+    //Validate Refresh Token
     public boolean validateRefreshToken(String token) {
-        Claims claims = extractAllClaims(token);
-        if(claims == null) return false;
-        return "refresh".equals(claims.get("tokenType"));
+        try {
+            Claims claims = extractAllClaims(token);
+            return !isTokenExpired(token)
+                    && "refresh".equals(claims.get("tokenType"));
+        } catch (Exception e) {
+            return false;
+        }
     }
-    // validate token
-    public boolean isValidateToken(String token) {
-        return extractAllClaims(token) == null;
+
+    //Kiểm tra token hết hạn
+    public boolean isTokenExpired(String token) {
+        try {
+            return extractAllClaims(token).getExpiration().before(new Date());
+        } catch (ExpiredJwtException e) {
+            return true;
+        }
     }
-    private String generateToken(Authentication authentication, long jwtExpiration, Map<String, String> claims) {
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+
+    //Sinh token
+    private String generateToken(Authentication authentication, long minutes, Map<String, Object> claims) {
+        UserDetails user = (UserDetails) authentication.getPrincipal();
         Date now = new Date();
+        Date expiry = new Date(now.getTime() + minutes * 60 * 1000);
+
         return Jwts.builder()
-                .header()
-                .add("type","jwt")
-                .and()
-                .subject(userDetails.getUsername())
+                .header().add("type", "JWT").and()
+                .subject(user.getUsername())
                 .claims(claims)
                 .issuedAt(now)
-                .expiration(new Date(now.getTime() + jwtExpiration))
+                .expiration(expiry)
                 .signWith(getSecretKey())
                 .compact();
     }
 
-    // extract email to token
-    public String extractEmailToToken(String token) {
-        Claims claims = extractAllClaims(token);
-        if(claims != null) {
-            return claims.getSubject();
-        }
-        return null;
-    }
-    // extract deviceId to token
-    public String extractDeviceIdToToken(String token) {
-        Claims claims = extractAllClaims(token);
-        return claims != null ? claims.get("deviceId", String.class) : null;
-    }
-    private Claims extractAllClaims(String token) {
-        Claims claims = null;
-        try{
-            claims = Jwts.parser()
-                    .verifyWith(getSecretKey())
-                    .build()
-                    .parseSignedClaims(token)
-                    .getPayload();
-        }catch (JwtException | IllegalArgumentException e) {
-            throw new RuntimeException(e);
-        }
-        return claims;
+    //Lấy email từ token
+    public String extractEmailFromToken(String token) {
+        return extractAllClaims(token).getSubject();
     }
 
+    //Lấy deviceId từ token
+    public String extractDeviceIdFromToken(String token) {
+        return extractAllClaims(token).get("deviceId", String.class);
+    }
+
+    //Parse toàn bộ claims
+    private Claims extractAllClaims(String token) {
+        return Jwts.parser()
+                .verifyWith(getSecretKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+    }
+
+    //Secret key
     private SecretKey getSecretKey() {
-        return Keys.hmacShaKeyFor(jwrSecret.getBytes(StandardCharsets.UTF_8));
+        return Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
     }
 }

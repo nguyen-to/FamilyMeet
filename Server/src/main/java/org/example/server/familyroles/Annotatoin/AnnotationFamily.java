@@ -1,6 +1,5 @@
 package org.example.server.familyroles.Annotatoin;
 
-import org.example.server.utill.FamilyPermission;
 import org.example.server.utill.FamilyRoles;
 
 import java.lang.annotation.ElementType;

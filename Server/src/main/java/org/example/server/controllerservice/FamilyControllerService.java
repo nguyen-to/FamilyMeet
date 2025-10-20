@@ -15,7 +15,6 @@ import org.example.server.service.FamilyMemberService;
 import org.example.server.service.FamilyService;
 import org.example.server.service.GroupService;
 import org.example.server.service.UserService;
-import org.example.server.service.userservice.CustomUserDetails;
 import org.example.server.utill.FamilyRoles;
 import org.springframework.stereotype.Service;
 
@@ -77,7 +76,6 @@ public class FamilyControllerService {
     }
 
     public DataFormResponse<DashBoardResponse> GetAllFamily(Long familyId ,Principal principal) {
-        UserEntity userEntity = userService.findByEmail(principal.getName());
         FamilyDTO familyDTO = familyService.getFamily(familyId);
         List<FamilyMemberDTO> familyMemberDTOS = familyMemberService.getFamilyId(familyId);
         List<GroupDTO> groupDTOS = groupService.groups(familyId);
