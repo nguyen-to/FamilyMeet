@@ -14,3 +14,9 @@ setTime:
 
 jwt:
   secret: ${JWT_SECRET}
+redis:
+  stream:
+    key: chat-stream
+    group: chat-group
+    consumer: chat-consumer-${random.uuid}
+    dlq: chat-stream-dlq

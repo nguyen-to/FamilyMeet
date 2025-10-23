@@ -30,21 +30,22 @@ public class RedisConfig {
         return new LettuceConnectionFactory("localhost", 6379);
     }
     // Configuration RedisTemplate
-    @Bean
-    public RedisTemplate<String, String> redisTemplate() {
-        RedisTemplate<String, String> redisTemplate = new RedisTemplate<>();
-        redisTemplate.setConnectionFactory(redisConnectionFactory()); // connect to server redis
+   @Bean
+    public RedisTemplate<String, Object> redisTemplate() {
+        RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
+        redisTemplate.setConnectionFactory(redisConnectionFactory());
 
-        // configuration type String, String
+        // Key serializer là String
         redisTemplate.setKeySerializer(new StringRedisSerializer());
         redisTemplate.setHashKeySerializer(new StringRedisSerializer());
 
-        redisTemplate.setValueSerializer(new StringRedisSerializer());
-        redisTemplate.setHashValueSerializer(new StringRedisSerializer());
-        redisTemplate.afterPropertiesSet();
+        // Value serializer dùng JSON để hỗ trợ Object
+        redisTemplate.setValueSerializer(new GenericJackson2JsonRedisSerializer());
+        redisTemplate.setHashValueSerializer(new GenericJackson2JsonRedisSerializer());
 
         return redisTemplate;
     }
+
     // configuration Cache
     @Bean
     public CacheManager cacheManager(RedisConnectionFactory connectionFactory) {

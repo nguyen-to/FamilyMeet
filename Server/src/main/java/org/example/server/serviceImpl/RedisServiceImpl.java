@@ -11,104 +11,66 @@ import java.util.Optional;
 
 @Service
 public class RedisServiceImpl implements RedisService {
-    private final RedisTemplate<String, String> redisTemplate;
+
+    private final RedisTemplate<String, Object> redisTemplate;
     private final ObjectMapper objectMapper;
 
-    public RedisServiceImpl(RedisTemplate<String, String> redisTemplate, ObjectMapper objectMapper) {
+    public RedisServiceImpl(RedisTemplate<String, Object> redisTemplate, ObjectMapper objectMapper) {
         this.redisTemplate = redisTemplate;
         this.objectMapper = objectMapper;
     }
 
-    // Save redis with object class
     @Override
     public <T> void saveRedis(String key, T value) {
-        try{
-            String json = objectMapper.writeValueAsString(value);
-            redisTemplate.opsForValue().set(key, json);
-        } catch (Exception e) {
-            throw new RuntimeException("Error saving redis", e);
-        }
+        redisTemplate.opsForValue().set(key, value);
     }
 
-    // Save redis with Array object class
     @Override
     public <T> void saveRedis(String key, T value, Duration timeout) {
-        try{
-            String json = objectMapper.writeValueAsString(value);
-            redisTemplate.opsForValue().set(key,json,timeout);
-        }catch (Exception e) {
-            throw new RuntimeException("Error saving redis", e);
-        }
+        redisTemplate.opsForValue().set(key, value, timeout);
     }
 
-    // save redis value String
     @Override
     public void saveRedisString(String key, String value) {
-        try{
-            redisTemplate.opsForValue().set(key, value);
-        }catch (Exception e) {
-            throw new RuntimeException("Error saving redis", e);
-        }
+        redisTemplate.opsForValue().set(key, value);
     }
 
-    // save redis value String with key life
     @Override
     public void saveRedisString(String key, String value, Duration timeout) {
-        try{
-            redisTemplate.opsForValue().set(key,value,timeout);
-        }catch (Exception e) {
-            throw new RuntimeException("Error saving redis", e);
-        }
+        redisTemplate.opsForValue().set(key, value, timeout);
     }
 
     @Override
     public Optional<String> getRedisString(String key) {
-        return Optional.ofNullable(redisTemplate.opsForValue().get(key));
+        Object value = redisTemplate.opsForValue().get(key);
+        return Optional.ofNullable(value != null ? value.toString() : null);
     }
 
-    //Get Object class Redis
     @Override
     public <T> Optional<T> getRedis(String key, Class<T> clazz) {
-        try{
-            String json = redisTemplate.opsForValue().get(key);
-            if(json == null || json.isEmpty()) {
-                return Optional.empty();
-            }
-            T value = objectMapper.readValue(json, clazz);
-            return Optional.of(value);
-        } catch (Exception e) {
-            throw new RuntimeException("Error getting redis", e);
-        }
+        Object value = redisTemplate.opsForValue().get(key);
+        return Optional.ofNullable(clazz.cast(value));
     }
 
-    //Get Array Object class Redis
     @Override
     public <T> Optional<T> getRedis(String key, TypeReference<T> typeReference) {
-        try{
-            String json = redisTemplate.opsForValue().get(key);
-            if(json == null || json.isEmpty()) {
-                return Optional.empty();
-            }
-            T value = objectMapper.readValue(json, typeReference);
-            return Optional.of(value);
-        }catch (Exception e) {
-            throw new RuntimeException("Error getting redis", e);
+        Object value = redisTemplate.opsForValue().get(key);
+        if (value == null) return Optional.empty();
+        try {
+            String json = objectMapper.writeValueAsString(value);
+            return Optional.of(objectMapper.readValue(json, typeReference));
+        } catch (Exception e) {
+            throw new RuntimeException("Error converting Redis value", e);
         }
     }
 
-
-    // Is key redis
     @Override
     public boolean existsKey(String key) {
-        return redisTemplate.hasKey(key);
+        return Boolean.TRUE.equals(redisTemplate.hasKey(key));
     }
-    // delete Key redis
+
     @Override
     public boolean deleteKey(String key) {
-        try{
-            return redisTemplate.delete(key);
-        }catch (Exception e) {
-            return false;
-        }
+        return Boolean.TRUE.equals(redisTemplate.delete(key));
     }
 }
