@@ -1,11 +1,10 @@
 package org.example.server.entity;
 
 import jakarta.persistence.*;
-import lombok.Builder;
-
 import java.time.LocalDateTime;
 
-@Builder
+import org.example.server.utill.GroupType;
+
 @Entity
 @Table(name = " groups")
 public class GroupEntity {
@@ -26,6 +25,10 @@ public class GroupEntity {
     @Column(name = "create_at")
     private LocalDateTime createAt;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "group_type")
+    private GroupType groupType;
+    
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "family_id")
     private Family family;
@@ -39,12 +42,13 @@ public class GroupEntity {
     }
 
 
-    public GroupEntity(Long id, String name, String description, String avatarUrl, LocalDateTime createAt, Family family, UserEntity owner) {
+    public GroupEntity(Long id, String name, String description, String avatarUrl, LocalDateTime createAt, GroupType groupType, Family family, UserEntity owner) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.avatarUrl = avatarUrl;
         this.createAt = createAt;
+        this.groupType = groupType;
         this.family = family;
         this.owner = owner;
     }
@@ -103,5 +107,11 @@ public class GroupEntity {
 
     public void setAvatarUrl(String avatarUrl) {
         this.avatarUrl = avatarUrl;
+    }
+    public GroupType getGroupType() {
+        return groupType;
+    }
+    public void setGroupType(GroupType groupType) {
+        this.groupType = groupType;
     }
 }

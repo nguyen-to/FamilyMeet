@@ -4,8 +4,7 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Logger;
-
+import org.example.server.request.chatRequest.ChatMessage;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Range;
 import org.springframework.data.redis.connection.stream.Consumer;
@@ -26,9 +25,8 @@ public class ChatMessageStreamListener implements StreamListener<String, MapReco
     
     
     private final RedisTemplate<String, Object> redisTemplate;
-    
-    private final ChatMessageRepository messageRepository;
-    
+    private final MessageService messageService;
+
     @Value("${redis.stream.key:chat-stream}")
     private String streamKey;
     
@@ -41,10 +39,7 @@ public class ChatMessageStreamListener implements StreamListener<String, MapReco
     private final AtomicInteger retryCount = new AtomicInteger(0);
     private static final int MAX_RETRIES = 3;
     
-    /**
-     * Tự động được gọi khi có message mới HOẶC khi container đang polling
-     * Không cần scheduled task!
-     */
+   
     @Override
     public void onMessage(MapRecord<String, Object, Object> record) {
         RecordId recordId = record.getId();
@@ -93,24 +88,19 @@ public class ChatMessageStreamListener implements StreamListener<String, MapReco
     private void retryMessage(MapRecord<String, Object, Object> record) {
         // Không ACK - để message ở pending state
         // Recovery task sẽ claim và retry sau
-        log.warn("⏳ Message {} will be retried later", record.getId());
+        log.warn("Message {} will be retried later", record.getId());
     }
     
     private void processMessage(MapRecord<String, Object, Object> record) {
         Map<Object, Object> data = record.getValue();
-        
-        ChatMessageEntity entity = new ChatMessageEntity();
-        entity.setRoomId(String.valueOf(data.get("roomId")));
-        entity.setSender(String.valueOf(data.get("sender")));
-        entity.setContent(String.valueOf(data.get("content")));
-        entity.setTimestamp(Instant.ofEpochMilli(Long.parseLong(String.valueOf(data.get("timestamp")))));
-        
-        if (data.containsKey("messageId")) {
-            entity.setMessageId(String.valueOf(data.get("messageId")));
-        }
-        
-        messageRepository.save(entity);
-        log.info("Saved message: {}", entity.getMessageId());
+        // lưu message vào DB
+        ChatMessage message = new ChatMessage();
+        message.setRoomId(data.get("roomId").toString());
+        message.setSender(data.get("sender").toString());
+        message.setContent(data.get("content").toString());
+        message.setMessageType(data.get("messageType").toString());
+
+        messageService.saveMessage(message);
     }
     
     private void handleFailedMessage(MapRecord<String, Object, Object> record) {

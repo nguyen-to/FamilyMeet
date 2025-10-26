@@ -183,6 +183,7 @@ public class AuthControllerService {
         //  remote refresh token for redis
         String email = principal.getName();
         refreshTokenService.removeRefreshToken(email,deviceId);
+        refreshTokenService.removeAccessToken(email,deviceId);
         return DataFormResponse.<String>builder()
                 .message("Logout Successful")
                 .build();

@@ -1,8 +1,8 @@
 package org.example.server.service.chatservice;
 
 import java.util.Map;
-import java.util.UUID;
 
+import org.example.server.request.chatRequest.ChatMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.connection.stream.RecordId;
@@ -28,8 +28,7 @@ public class RedisStreamPublisher {
                 "roomId", message.getRoomId(),
                 "sender", message.getSender(),
                 "content", message.getContent(),
-                "timestamp", String.valueOf(message.getTimestamp().toEpochMilli()),
-                "messageId", message.getMessageId() != null ? message.getMessageId() : UUID.randomUUID().toString()
+                "messageType", message.getMessageType()
             );
             
             RecordId recordId = redisTemplate.opsForStream().add(streamKey, messageMap);

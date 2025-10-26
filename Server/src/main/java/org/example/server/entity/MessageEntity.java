@@ -3,34 +3,38 @@ package org.example.server.entity;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
+
+import org.example.server.utill.MessageType;
 
 @Entity
 @Table(name = "message_archive")
 public class MessageEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "content_id")
-    private Long id;
+    private UUID id;
 
     @Column(name = "content",columnDefinition = "TEXT")
     private String content;
-    @Column(name = "mesage_type")
-    private String messageType;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "message_type")
+    private MessageType messageType;
+    
     @Column(name = "sent_at")
     private LocalDateTime sentAt;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "group_id")
-    private GroupEntity group;
+    @Column(name = "group_id")
+    private String group;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sender_id")
-    private UserEntity sender;
+    @Column(name = "sender_id")
+    private String sender;
 
     public MessageEntity() {
     }
 
-    public MessageEntity(Long id, String content, String messageType, LocalDateTime sentAt, GroupEntity group, UserEntity sender) {
+    public MessageEntity(UUID id, String content, MessageType messageType, LocalDateTime sentAt, String group, String sender) {
         this.id = id;
         this.content = content;
         this.messageType = messageType;
@@ -39,11 +43,11 @@ public class MessageEntity {
         this.sender = sender;
     }
 
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
@@ -55,11 +59,11 @@ public class MessageEntity {
         this.content = content;
     }
 
-    public String getMessageType() {
+    public MessageType getMessageType() {
         return messageType;
     }
 
-    public void setMessageType(String messageType) {
+    public void setMessageType(MessageType messageType) {
         this.messageType = messageType;
     }
 
@@ -71,19 +75,19 @@ public class MessageEntity {
         this.sentAt = sentAt;
     }
 
-    public GroupEntity getGroup() {
+    public String getGroup() {
         return group;
     }
 
-    public void setGroup(GroupEntity group) {
+    public void setGroup(String group) {
         this.group = group;
     }
 
-    public UserEntity getSender() {
+    public String getSender() {
         return sender;
     }
 
-    public void setSender(UserEntity sender) {
+    public void setSender(String sender) {
         this.sender = sender;
     }
 }

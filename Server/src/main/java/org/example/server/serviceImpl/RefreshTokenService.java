@@ -36,4 +36,7 @@ public class RefreshTokenService {
     private String setKey(String token,String email, String deviceId) {
         return token + email + ":" + deviceId;
     }
+    public void removeAccessToken(String email, String deviceId) {
+        redisTemplate.delete(AccessTokenKey + email);
+    }
 }

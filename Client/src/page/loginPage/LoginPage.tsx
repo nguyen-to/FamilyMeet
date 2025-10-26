@@ -21,7 +21,6 @@ export default function FamilyMeetLogin() {
 const Navigate = useNavigate();
  
   const HandleSuccess = (data: { email: string; tokenFirebase: string }) => {
-      toast.error("Email hoặc mật khẩu không đúng, vui lòng thử lại.");
     const loginData: LoginForm = {
       email: data.email,
       password: data.tokenFirebase,
