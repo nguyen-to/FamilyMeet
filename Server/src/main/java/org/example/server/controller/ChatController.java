@@ -18,8 +18,8 @@ public class ChatController {
     private final SimpMessagingTemplate messagingTemplate;
     private final RedisStreamPublisher redisPubSubListener;
     @MessageMapping("/chat.sendMessage")
-    public void sendMessage(@Payload ChatMessage chatMessage, SimpMessageHeaderAccessor headerAccessor) {
-        // Lấy email từ session
+    public void sendMessage(@Payload ChatMessage chatMessage) {
+        // đẩy message lên Redis Stream
         redisPubSubListener.publish(chatMessage);
         messagingTemplate.convertAndSend("/topic/group/" + chatMessage.getRoomId(), chatMessage);
     }
